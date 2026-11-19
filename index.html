@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriPlan | Planejador de Plano Alimentar</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-emerald-600 text-white shadow-md print:hidden sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+          <i data-lucide="utensils" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">NutriPlan</h1>
+          <p class="text-xs text-emerald-100">Planejador Alimentar Semanal Simples & Prático</p>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center flex-wrap gap-2">
+        <button id="btn-water" title="Registrar Água" class="bg-emerald-700/70 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+          <i data-lucide="droplet" class="w-4 h-4 text-cyan-300"></i>
+          <span id="water-counter">0 / 2000 ml</span>
+        </button>
+
+        <button id="btn-shopping-list" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+          <span>Lista de Compras</span>
+        </button>
+
+        <button id="btn-print" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Imprimir / PDF</span>
+        </button>
+
+        <div class="relative inline-block text-left">
+          <button id="btn-more-options" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition" title="Mais Opções">
+            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+          </button>
+          <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 text-slate-700 z-50">
+            <button id="btn-export" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4 text-emerald-600"></i> Exportar Dados (JSON)
+            </button>
+            <label class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-4 h-4 text-blue-600"></i> Importar Dados (JSON)
+              <input type="file" id="input-import" accept=".json" class="hidden">
+            </label>
+            <hr class="my-1 border-slate-100">
+            <button id="btn-reset" class="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Restaurar Exemplo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Printable Header (Only appears on print) -->
+  <div class="hidden print:block p-6 border-b border-slate-300">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Meu Plano Alimentar</h1>
+        <p class="text-sm text-slate-600" id="print-date">Planejamento Nutricional</p>
+      </div>
+      <div class="text-right text-xs text-slate-500">
+        Gerado pelo NutriPlan
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1">
+
+    <!-- Day Navigation Pills -->
+    <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-200/80 mb-6 print:hidden">
+      <div class="flex overflow-x-auto gap-2 no-scrollbar" id="day-tabs">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Daily Summary Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <!-- Total Calories -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Calorias do Dia</p>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="text-2xl font-bold text-slate-800" id="total-kcal">0</span>
+            <span class="text-xs text-slate-500 font-medium">/ <span id="target-kcal-display">2000</span> kcal</span>
+          </div>
+        </div>
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+          <i data-lucide="flame" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Total Protein -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Proteínas</p>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="text-2xl font-bold text-slate-800" id="total-protein">0</span>
+            <span class="text-xs text-slate-500 font-medium">g</span>
+          </div>
+        </div>
+        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+          <i data-lucide="beef" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Water Tracker -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Hidratação</p>
+          <div class="flex items-baseline gap-1 mt-1">
+            <span class="text-2xl font-bold text-cyan-700" id="daily-water">0</span>
+            <span class="text-xs text-slate-500 font-medium">/ 2000 ml</span>
+          </div>
+        </div>
+        <div class="flex gap-1 print:hidden">
+          <button id="btn-add-water" class="w-8 h-8 rounded-lg bg-cyan-100 hover:bg-cyan-200 text-cyan-800 flex items-center justify-center text-sm font-bold transition" title="+250ml">
+            +
+          </button>
+          <button id="btn-sub-water" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold transition" title="-250ml">
+            -
+          </button>
+        </div>
+      </div>
+
+      <!-- Calorie Goal Settings -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <label for="input-target-kcal" class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Meta Calórica</label>
+          <input type="number" id="input-target-kcal" value="2000" step="50" class="mt-1 w-24 text-lg font-bold text-slate-800 border-b border-dashed border-slate-300 focus:outline-none focus:border-emerald-500 bg-transparent">
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+          <i data-lucide="target" class="w-6 h-6"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress bar -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-6 print:hidden">
+      <div class="flex justify-between items-center text-xs text-slate-600 mb-1.5 font-medium">
+        <span>Progresso de Calorias Diárias</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+        <div id="progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Active Day Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+        <h2 id="current-day-title" class="text-xl font-bold text-slate-800">Segunda-feira</h2>
+      </div>
+      <div class="text-xs text-slate-500 print:hidden flex items-center gap-1">
+        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+        <span>Alterações salvas automaticamente no navegador</span>
+      </div>
+    </div>
+
+    <!-- Meals Grid / Cards -->
+    <div id="meals-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Meals rendered dynamically -->
+    </div>
+
+  </main>
+
+  <!-- Modal: Shopping List -->
+  <div id="modal-shopping-list" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden animate-in">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-lg text-slate-800">Lista de Compras da Semana</h3>
+        </div>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1">
+        <p class="text-xs text-slate-500 mb-3">Itens consolidados de todas as refeições do seu plano semanal:</p>
+        <ul id="shopping-list-items" class="space-y-2">
+          <!-- Rendered dynamically -->
+        </ul>
+      </div>
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+        <button id="btn-copy-shopping" class="text-sm font-medium text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5">
+          <i data-lucide="copy" class="w-4 h-4"></i> Copiar Texto
+        </button>
+        <button id="btn-close-shopping-btn" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-4 text-center text-xs text-slate-500 print:hidden">
+    <p>NutriPlan &bull; Ferramenta em JavaScript de Código Aberto &bull; Armazenamento Local no Navegador</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

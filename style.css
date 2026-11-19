@@ -1,0 +1,65 @@
+/* Custom styling & animations for NutriPlan */
+
+/* Hide scrollbar for tabs on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: white !important;
+    color: #111827 !important;
+    font-size: 11pt;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  #meals-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    page-break-inside: auto;
+  }
+
+  .meal-card {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    border-radius: 8px !important;
+    padding: 12px !important;
+  }
+
+  .meal-item {
+    border-bottom: 1px dashed #e2e8f0 !important;
+    padding: 4px 0 !important;
+  }
+
+  .meal-item button {
+    display: none !important;
+  }
+
+  .meal-add-form {
+    display: none !important;
+  }
+}
