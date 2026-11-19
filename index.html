@@ -6,14 +6,19 @@
   <title>NutriPlan | Planejador de Plano Alimentar</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Header -->
-  <header class="bg-emerald-600 text-white shadow-md print:hidden sticky top-0 z-40">
+  <header class="bg-emerald-600 dark:bg-emerald-800 text-white shadow-md print:hidden sticky top-0 z-40 transition-colors duration-200">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center space-x-3">
         <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
@@ -27,7 +32,17 @@
 
       <!-- Action buttons -->
       <div class="flex items-center flex-wrap gap-2">
-        <button id="btn-water" title="Registrar Água" class="bg-emerald-700/70 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+        <!-- Botão Alternador Modo Escuro (Switch) -->
+        <button id="btn-theme-toggle" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition" title="Ligar/Desligar Modo Escuro" aria-label="Alternar tema escuro">
+          <i data-lucide="moon" id="theme-icon" class="w-4 h-4 text-amber-300"></i>
+          <span class="text-xs hidden sm:inline" id="theme-label">Escuro</span>
+          <!-- Switch visual (ligar/desligar) -->
+          <div class="w-9 h-5 bg-black/25 rounded-full p-0.5 flex items-center transition-colors duration-200 relative">
+            <div id="theme-switch-thumb" class="w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 translate-x-0"></div>
+          </div>
+        </button>
+
+        <button id="btn-water" title="Registrar Água" class="bg-emerald-700/70 hover:bg-emerald-700 dark:bg-emerald-900/60 dark:hover:bg-emerald-900 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
           <i data-lucide="droplet" class="w-4 h-4 text-cyan-300"></i>
           <span id="water-counter">0 / 2000 ml</span>
         </button>
@@ -46,16 +61,16 @@
           <button id="btn-more-options" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-lg transition" title="Mais Opções">
             <i data-lucide="more-vertical" class="w-4 h-4"></i>
           </button>
-          <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 text-slate-700 z-50">
-            <button id="btn-export" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
-              <i data-lucide="download" class="w-4 h-4 text-emerald-600"></i> Exportar Dados (JSON)
+          <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-1 text-slate-700 dark:text-slate-200 z-50">
+            <button id="btn-export" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i> Exportar Dados (JSON)
             </button>
-            <label class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
-              <i data-lucide="upload" class="w-4 h-4 text-blue-600"></i> Importar Dados (JSON)
+            <label class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i> Importar Dados (JSON)
               <input type="file" id="input-import" accept=".json" class="hidden">
             </label>
-            <hr class="my-1 border-slate-100">
-            <button id="btn-reset" class="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2">
+            <hr class="my-1 border-slate-100 dark:border-slate-700">
+            <button id="btn-reset" class="w-full text-left px-4 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center gap-2">
               <i data-lucide="trash-2" class="w-4 h-4"></i> Restaurar Exemplo
             </button>
           </div>
@@ -80,7 +95,7 @@
   <main class="max-w-6xl w-full mx-auto px-4 py-6 flex-1">
 
     <!-- Day Navigation Pills -->
-    <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-200/80 mb-6 print:hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-2 shadow-sm border border-slate-200/80 dark:border-slate-700 mb-6 print:hidden transition-colors duration-200">
       <div class="flex overflow-x-auto gap-2 no-scrollbar" id="day-tabs">
         <!-- Rendered dynamically via JavaScript -->
       </div>
@@ -89,71 +104,71 @@
     <!-- Daily Summary Cards -->
     <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <!-- Total Calories -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex items-center justify-between transition-colors duration-200">
         <div>
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Calorias do Dia</p>
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Calorias do Dia</p>
           <div class="flex items-baseline gap-1 mt-1">
-            <span class="text-2xl font-bold text-slate-800" id="total-kcal">0</span>
-            <span class="text-xs text-slate-500 font-medium">/ <span id="target-kcal-display">2000</span> kcal</span>
+            <span class="text-2xl font-bold text-slate-800 dark:text-slate-100" id="total-kcal">0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">/ <span id="target-kcal-display">2000</span> kcal</span>
           </div>
         </div>
-        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+        <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center">
           <i data-lucide="flame" class="w-6 h-6"></i>
         </div>
       </div>
 
       <!-- Total Protein -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex items-center justify-between transition-colors duration-200">
         <div>
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Proteínas</p>
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Proteínas</p>
           <div class="flex items-baseline gap-1 mt-1">
-            <span class="text-2xl font-bold text-slate-800" id="total-protein">0</span>
-            <span class="text-xs text-slate-500 font-medium">g</span>
+            <span class="text-2xl font-bold text-slate-800 dark:text-slate-100" id="total-protein">0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">g</span>
           </div>
         </div>
-        <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+        <div class="w-12 h-12 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl flex items-center justify-center">
           <i data-lucide="beef" class="w-6 h-6"></i>
         </div>
       </div>
 
       <!-- Water Tracker -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex items-center justify-between transition-colors duration-200">
         <div>
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Hidratação</p>
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hidratação</p>
           <div class="flex items-baseline gap-1 mt-1">
-            <span class="text-2xl font-bold text-cyan-700" id="daily-water">0</span>
-            <span class="text-xs text-slate-500 font-medium">/ 2000 ml</span>
+            <span class="text-2xl font-bold text-cyan-600 dark:text-cyan-400" id="daily-water">0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">/ 2000 ml</span>
           </div>
         </div>
         <div class="flex gap-1 print:hidden">
-          <button id="btn-add-water" class="w-8 h-8 rounded-lg bg-cyan-100 hover:bg-cyan-200 text-cyan-800 flex items-center justify-center text-sm font-bold transition" title="+250ml">
+          <button id="btn-add-water" class="w-8 h-8 rounded-lg bg-cyan-100 dark:bg-cyan-900/60 hover:bg-cyan-200 dark:hover:bg-cyan-900 text-cyan-800 dark:text-cyan-200 flex items-center justify-center text-sm font-bold transition" title="+250ml">
             +
           </button>
-          <button id="btn-sub-water" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold transition" title="-250ml">
+          <button id="btn-sub-water" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 flex items-center justify-center text-sm font-bold transition" title="-250ml">
             -
           </button>
         </div>
       </div>
 
       <!-- Calorie Goal Settings -->
-      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 flex items-center justify-between transition-colors duration-200">
         <div>
-          <label for="input-target-kcal" class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Meta Calórica</label>
-          <input type="number" id="input-target-kcal" value="2000" step="50" class="mt-1 w-24 text-lg font-bold text-slate-800 border-b border-dashed border-slate-300 focus:outline-none focus:border-emerald-500 bg-transparent">
+          <label for="input-target-kcal" class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Meta Calórica</label>
+          <input type="number" id="input-target-kcal" value="2000" step="50" class="mt-1 w-24 text-lg font-bold text-slate-800 dark:text-slate-100 border-b border-dashed border-slate-300 dark:border-slate-600 focus:outline-none focus:border-emerald-500 bg-transparent">
         </div>
-        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+        <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center">
           <i data-lucide="target" class="w-6 h-6"></i>
         </div>
       </div>
     </section>
 
     <!-- Progress bar -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 mb-6 print:hidden">
-      <div class="flex justify-between items-center text-xs text-slate-600 mb-1.5 font-medium">
+    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700 mb-6 print:hidden transition-colors duration-200">
+      <div class="flex justify-between items-center text-xs text-slate-600 dark:text-slate-300 mb-1.5 font-medium">
         <span>Progresso de Calorias Diárias</span>
         <span id="progress-percent">0%</span>
       </div>
-      <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+      <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
         <div id="progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
       </div>
     </div>
@@ -162,9 +177,9 @@
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-        <h2 id="current-day-title" class="text-xl font-bold text-slate-800">Segunda-feira</h2>
+        <h2 id="current-day-title" class="text-xl font-bold text-slate-800 dark:text-slate-100">Segunda-feira</h2>
       </div>
-      <div class="text-xs text-slate-500 print:hidden flex items-center gap-1">
+      <div class="text-xs text-slate-500 dark:text-slate-400 print:hidden flex items-center gap-1">
         <i data-lucide="info" class="w-3.5 h-3.5"></i>
         <span>Alterações salvas automaticamente no navegador</span>
       </div>
@@ -178,30 +193,30 @@
   </main>
 
   <!-- Modal: Shopping List -->
-  <div id="modal-shopping-list" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden animate-in">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+  <div id="modal-shopping-list" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden animate-in border border-slate-100 dark:border-slate-700">
+      <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+          <div class="p-2 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-lg">
             <i data-lucide="shopping-cart" class="w-5 h-5"></i>
           </div>
-          <h3 class="font-bold text-lg text-slate-800">Lista de Compras da Semana</h3>
+          <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">Lista de Compras da Semana</h3>
         </div>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <div class="p-5 overflow-y-auto flex-1">
-        <p class="text-xs text-slate-500 mb-3">Itens consolidados de todas as refeições do seu plano semanal:</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Itens consolidados de todas as refeições do seu plano semanal:</p>
         <ul id="shopping-list-items" class="space-y-2">
           <!-- Rendered dynamically -->
         </ul>
       </div>
-      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-        <button id="btn-copy-shopping" class="text-sm font-medium text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5">
+      <div class="p-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+        <button id="btn-copy-shopping" class="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center gap-1.5">
           <i data-lucide="copy" class="w-4 h-4"></i> Copiar Texto
         </button>
-        <button id="btn-close-shopping-btn" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
+        <button id="btn-close-shopping-btn" class="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition">
           Fechar
         </button>
       </div>
@@ -209,7 +224,7 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 mt-12 py-4 text-center text-xs text-slate-500 print:hidden">
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-12 py-4 text-center text-xs text-slate-500 dark:text-slate-400 print:hidden transition-colors duration-200">
     <p>NutriPlan &bull; Ferramenta em JavaScript de Código Aberto &bull; Armazenamento Local no Navegador</p>
   </footer>
 

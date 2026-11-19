@@ -1,5 +1,29 @@
 /* Custom styling & animations for NutriPlan */
 
+/* Dark Mode Transitions & Base */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* Toggle Switch animation */
+#theme-switch-thumb {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+}
+
+.dark #theme-switch-thumb {
+  transform: translateX(16px);
+  background-color: #34d399; /* emerald-400 */
+}
+
+.dark #btn-theme-toggle .w-9 {
+  background-color: rgba(16, 185, 129, 0.35); /* emerald glow */
+}
+
 /* Hide scrollbar for tabs on mobile */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -7,6 +31,22 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Custom scrollbars in dark mode */
+html.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Animations */

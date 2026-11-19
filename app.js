@@ -1,6 +1,7 @@
 // NutriPlan - Planejador Alimentar em Vanilla JavaScript
 
 const STORAGE_KEY = 'nutriplan_data_v1';
+const THEME_KEY = 'nutriplan_theme';
 
 const DAYS = [
   { id: 'segunda', label: 'Segunda-feira', short: 'Seg' },
@@ -122,8 +123,50 @@ function saveData() {
   }
 }
 
+// Funções de Tema (Modo Claro / Modo Escuro)
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+  applyTheme(isDark);
+}
+
+function applyTheme(isDark) {
+  const html = document.documentElement;
+  const themeIcon = document.getElementById('theme-icon');
+  const themeLabel = document.getElementById('theme-label');
+
+  if (isDark) {
+    html.classList.add('dark');
+    if (themeIcon) {
+      themeIcon.setAttribute('data-lucide', 'sun');
+      themeIcon.className = 'w-4 h-4 text-amber-300';
+    }
+    if (themeLabel) themeLabel.textContent = 'Claro';
+  } else {
+    html.classList.remove('dark');
+    if (themeIcon) {
+      themeIcon.setAttribute('data-lucide', 'moon');
+      themeIcon.className = 'w-4 h-4 text-amber-200';
+    }
+    if (themeLabel) themeLabel.textContent = 'Escuro';
+  }
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const newTheme = !isDark;
+  localStorage.setItem(THEME_KEY, newTheme ? 'dark' : 'light');
+  applyTheme(newTheme);
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   setupDayTabs();
   setupEventListeners();
   render();
@@ -139,7 +182,7 @@ function setupDayTabs() {
     btn.className = `day-tab px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap flex items-center gap-1.5 ${
       day.id === appState.activeDay
         ? 'bg-emerald-600 text-white shadow-sm font-semibold'
-        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white'
     }`;
     btn.dataset.day = day.id;
     btn.innerHTML = `<span>${day.label}</span>`;
@@ -154,6 +197,11 @@ function setupDayTabs() {
 
 // Configurar ouvintes de eventos globais
 function setupEventListeners() {
+  // Alternador de tema (Modo Escuro / Claro)
+  const themeBtn = document.getElementById('btn-theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', toggleTheme);
+  }
   // Input de meta calórica
   const targetKcalInput = document.getElementById('input-target-kcal');
   targetKcalInput.value = appState.data.targetKcal || 2000;
@@ -300,25 +348,25 @@ function renderMeals() {
     });
 
     const card = document.createElement('div');
-    card.className = 'meal-card bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col justify-between';
+    card.className = 'meal-card bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700 flex flex-col justify-between transition-colors duration-200';
 
     // Header da refeição
     let itemsHtml = '';
     if (items.length === 0) {
-      itemsHtml = `<p class="text-sm text-slate-400 italic py-2">Nenhum alimento cadastrado nesta refeição.</p>`;
+      itemsHtml = `<p class="text-sm text-slate-400 dark:text-slate-500 italic py-2">Nenhum alimento cadastrado nesta refeição.</p>`;
     } else {
       itemsHtml = items.map(item => `
-        <div class="meal-item flex items-center justify-between py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 rounded-lg px-1 transition">
+        <div class="meal-item flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700/80 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-700/40 rounded-lg px-1 transition">
           <div class="flex-1 pr-2">
-            <span class="font-medium text-sm text-slate-800">${escapeHtml(item.name)}</span>
-            <span class="text-xs text-slate-500 block">${escapeHtml(item.portion || '')}</span>
+            <span class="font-medium text-sm text-slate-800 dark:text-slate-100">${escapeHtml(item.name)}</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 block">${escapeHtml(item.portion || '')}</span>
           </div>
           <div class="flex items-center gap-3 text-right">
             <div class="text-xs">
-              <span class="font-semibold text-slate-700">${item.kcal || 0} kcal</span>
-              <span class="text-slate-400 block">${item.protein || 0}g prot</span>
+              <span class="font-semibold text-slate-700 dark:text-slate-200">${item.kcal || 0} kcal</span>
+              <span class="text-slate-400 dark:text-slate-400 block">${item.protein || 0}g prot</span>
             </div>
-            <button class="btn-remove-food text-slate-400 hover:text-red-500 p-1 rounded transition print:hidden" 
+            <button class="btn-remove-food text-slate-400 hover:text-red-500 dark:hover:text-red-400 p-1 rounded transition print:hidden" 
                     title="Remover" data-meal="${meal.id}" data-id="${item.id}">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
@@ -329,18 +377,18 @@ function renderMeals() {
 
     card.innerHTML = `
       <div>
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700/80 pb-3 mb-3">
           <div class="flex items-center gap-2.5">
-            <div class="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+            <div class="p-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 rounded-xl">
               <i data-lucide="${meal.icon}" class="w-5 h-5"></i>
             </div>
             <div>
-              <h3 class="font-bold text-slate-800">${meal.title}</h3>
-              <span class="text-xs text-slate-400">${meal.time}</span>
+              <h3 class="font-bold text-slate-800 dark:text-slate-100">${meal.title}</h3>
+              <span class="text-xs text-slate-400 dark:text-slate-400">${meal.time}</span>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full">
+            <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-full">
               ${Math.round(mealKcal)} kcal
             </span>
           </div>
@@ -352,18 +400,18 @@ function renderMeals() {
       </div>
 
       <!-- Formulário de adicionar item -->
-      <form class="meal-add-form pt-3 border-t border-slate-100 print:hidden" data-meal="${meal.id}">
+      <form class="meal-add-form pt-3 border-t border-slate-100 dark:border-slate-700/80 print:hidden" data-meal="${meal.id}">
         <div class="grid grid-cols-12 gap-2 mb-2">
           <input type="text" placeholder="Ex: Tapioca c/ queijo" required
-                 class="input-name col-span-6 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500">
+                 class="input-name col-span-6 px-3 py-1.5 text-xs border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg focus:outline-none focus:border-emerald-500">
           <input type="text" placeholder="Porção (ex: 1 un)"
-                 class="input-portion col-span-6 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500">
+                 class="input-portion col-span-6 px-3 py-1.5 text-xs border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg focus:outline-none focus:border-emerald-500">
         </div>
         <div class="grid grid-cols-12 gap-2">
           <input type="number" placeholder="Kcal" min="0" step="1"
-                 class="input-kcal col-span-5 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500">
+                 class="input-kcal col-span-5 px-3 py-1.5 text-xs border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg focus:outline-none focus:border-emerald-500">
           <input type="number" placeholder="Prot (g)" min="0" step="0.5"
-                 class="input-protein col-span-4 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500">
+                 class="input-protein col-span-4 px-3 py-1.5 text-xs border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-lg focus:outline-none focus:border-emerald-500">
           <button type="submit" 
                   class="col-span-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
@@ -445,19 +493,19 @@ function openShoppingList() {
   });
 
   if (itemMap.size === 0) {
-    listContainer.innerHTML = `<li class="text-slate-400 text-sm italic">Nenhum item encontrado no plano alimentar.</li>`;
+    listContainer.innerHTML = `<li class="text-slate-400 dark:text-slate-500 text-sm italic">Nenhum item encontrado no plano alimentar.</li>`;
   } else {
     Array.from(itemMap.values())
       .sort((a, b) => a.name.localeCompare(b.name))
       .forEach(entry => {
         const li = document.createElement('li');
-        li.className = 'flex items-center justify-between p-2.5 bg-slate-50 rounded-xl text-sm border border-slate-100';
+        li.className = 'flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl text-sm border border-slate-100 dark:border-slate-700';
         li.innerHTML = `
           <div class="flex items-center gap-2">
-            <input type="checkbox" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-            <span class="font-medium text-slate-800">${escapeHtml(entry.name)}</span>
+            <input type="checkbox" class="w-4 h-4 text-emerald-600 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-emerald-500">
+            <span class="font-medium text-slate-800 dark:text-slate-100">${escapeHtml(entry.name)}</span>
           </div>
-          <span class="text-xs text-slate-500 font-medium">
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
             ${entry.count > 1 ? `x${entry.count}` : ''} ${entry.portions.length > 0 ? `(${escapeHtml(entry.portions.join(', '))})` : ''}
           </span>
         `;
